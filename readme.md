@@ -63,4 +63,4 @@ Dar exemplos
 
 Mencione as ferramentas que você usou para criar seu projeto
 
-* [Django](https://www.djangoproject.com/) -
+* [Django](https://www.djangoproject.com/)
