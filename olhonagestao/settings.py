@@ -10,11 +10,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['192.168.18.3']
 
-
 # Application definition
 
 INSTALLED_APPS = [
     # Django Contrib Apps
+    'channels',
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -52,6 +53,9 @@ MIDDLEWARE = [
     'axes.middleware.AxesMiddleware',
     ]
 
+ASGI_APPLICATION  = "olhonagestao.asgi.application"
+
+
 AUTHENTICATION_BACKENDS = [
     'axes.backends.AxesStandaloneBackend',
     'django.contrib.auth.backends.ModelBackend',
@@ -62,6 +66,12 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
+}
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
 }
 
 SIMPLE_JWT = {
