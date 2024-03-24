@@ -7,4 +7,8 @@ urlpatterns = [
     path('api/auth/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/auth/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'),
+    
+    
+    path("<str:room_name>/", room, name="room"),
+
 ] 

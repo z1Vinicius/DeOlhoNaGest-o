@@ -7,6 +7,8 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView, status
 from axes.utils import reset
+from django.shortcuts import render
+
 import datetime
 
 class AuthTokenLogin(ObtainAuthToken):
@@ -115,3 +117,6 @@ def logoutView(request) -> dict:
     """    
     logout(request)
     return successJsonResponse()
+
+def room(request, room_name):
+    return render(request, "chat/room.html", {"room_name": room_name})

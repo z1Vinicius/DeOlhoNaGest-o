@@ -5,6 +5,7 @@ from django.urls import path
 from apps.authentication import routing as olhonagestao_routing
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'olhonagestao.settings')
+print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaasssa')
 
 # Obtenha a aplicação ASGI padrão do Django
 django_asgi_application = get_asgi_application()
