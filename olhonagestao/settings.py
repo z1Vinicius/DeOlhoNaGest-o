@@ -14,6 +14,7 @@ ALLOWED_HOSTS = ['192.168.18.3']
 
 INSTALLED_APPS = [
     # Django Contrib Apps
+    'jazzmin',
     'channels',
     'daphne',
     'django.contrib.admin',
@@ -27,7 +28,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt.token_blacklist',
-    'jazzmin',
     'django_dump_load_utf8',
     'rolepermissions',
     'rest_framework_simplejwt',
@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'axes',
     'debug_toolbar',
     'polymorphic',
-
+    'dj_rest_auth',
     # Custom Apps
     'apps.authentication',
     'drf_standardized_errors',
@@ -70,9 +70,21 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 REST_FRAMEWORK = {
+'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+        'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.ScopedRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'test': '120/minute',
+    }
 }
 
 CHANNEL_LAYERS = {
