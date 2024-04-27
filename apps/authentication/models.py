@@ -19,7 +19,11 @@ class Profile(models.Model):
         avatarUrl = cls.objects.filter(user__username = username).first()
         if avatarUrl is None: return userPlaceholder
         return avatarUrl.avatar.url
-
+    
+    @classmethod
+    def getByRequest(cls, request):
+        return cls.objects.filter(user = request.user).first()
+    
 @receiver(post_save, sender= User)
 def createProfile(sender, instance, created, **kwargs):
     if(created):

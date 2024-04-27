@@ -8,12 +8,19 @@ SECRET_KEY = 'django-insecure-r-m$1@q@d=!nmqu7n2fre)0sb7m5)k+&n7)mg%(gl-d5$zm1iu
 
 DEBUG = True
 
+INTERNAL_IPS = [
+    # ...
+    "192.168.18.3",
+    # ...
+]
+
 ALLOWED_HOSTS = ['192.168.18.3']
 
 # Application definition
 
 INSTALLED_APPS = [
     # Django Contrib Apps
+    'debug_toolbar',
     'jazzmin',
     'channels',
     'daphne',
@@ -33,7 +40,6 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'django_apscheduler',
     'axes',
-    'debug_toolbar',
     'polymorphic',
     'dj_rest_auth',
     # Custom Apps
@@ -52,7 +58,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'axes.middleware.AxesMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware'
+    "debug_toolbar.middleware.DebugToolbarMiddleware", 
     ]
 
 ASGI_APPLICATION  = "olhonagestao.asgi.application"

@@ -31,6 +31,11 @@ class Post(models.Model):
     
     def __str__(self):
         return self.post_text
+    
+    @classmethod
+    def getAllPosts(cls, createdBy):
+        return cls.objects.filter(created_by = createdBy, status = 'public')
+    
 
 class PostMedia(models.Model):
     post = models.ForeignKey(Post, on_delete= models.CASCADE, verbose_name="Postagem", db_column="CD_POST")

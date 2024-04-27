@@ -9,10 +9,19 @@ from rest_framework.views import APIView, status
 from axes.utils import reset
 from django.shortcuts import render
 import datetime
-from apps.authentication.models import Profile
 from rest_framework.permissions import IsAuthenticated
 
-# class ProfileData(APIView):
-#     [IsAuthenticated]
-#     def get(self, request, *args, **kwargs):    
-#         return Response('Usuário não está autenticado', status= status.HTTP_401_UNAUTHORIZED)
+from apps.authentication.models import Profile
+from .serializers import PostSerializer
+from .models import Post
+
+class UserPosts(APIView):
+    [IsAuthenticated]
+    def get(self, request, *args, **kwargs):
+      user = Profile.getByRequest(request)
+      if not(user):
+        return Response('Usuário não encontrado', status= status.HTTP_401_UNAUTHORIZED)
+      query = Post.getAllPosts(user).prefetch_related('created_by', 'created_by__user', 'postmedia_set')
+      serializer = PostSerializer(query, many = True)
+      return Response(serializer.data)
+

@@ -10,6 +10,7 @@ bower_components
 ### Data ###
 *.ogg
 *.wav
+*.db
 
 ### Django ###
 *.log
