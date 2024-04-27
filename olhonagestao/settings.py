@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'dj_rest_auth',
     # Custom Apps
     'apps.authentication',
+    'apps.post',
     'drf_standardized_errors',
 ]
 
@@ -51,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'axes.middleware.AxesMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware'
     ]
 
 ASGI_APPLICATION  = "olhonagestao.asgi.application"
