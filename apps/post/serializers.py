@@ -25,7 +25,7 @@ class PostSerializer(serializers.ModelSerializer):
         'description': instance.post_text    
       },
       'profile': {
-        'created_by': instance.created_by.id,
+        'createdBy': instance.created_by.id,
         'name': instance.created_by.user.first_name,
         'lastName': instance.created_by.user.last_name,
         'profileImage': instance.created_by.avatar.url
