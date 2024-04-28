@@ -24,4 +24,11 @@ class UserPosts(APIView):
       query = Post.getAllPosts(user).prefetch_related('created_by', 'created_by__user', 'postmedia_set')
       serializer = PostSerializer(query, many = True)
       return Response(serializer.data)
+    
+class RecentFeed(APIView):
+    [IsAuthenticated]
+    def get(self, request, *args, **kwargs):
+      query = Post.getRecentPosts().prefetch_related('postmedia_set')
+      serializer = PostSerializer(query, many = True)
+      return Response(serializer.data)
 
