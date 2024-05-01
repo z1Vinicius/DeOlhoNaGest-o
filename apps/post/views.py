@@ -28,7 +28,8 @@ class UserPosts(APIView):
 class RecentFeed(APIView):
     [IsAuthenticated]
     def get(self, request, *args, **kwargs):
-      query = Post.getRecentPosts().prefetch_related('postmedia_set')
-      serializer = PostSerializer(query, many = True)
+      user = Profile.getByRequest(request)
+      query = Post.getRecentPosts().prefetch_related('created_by', 'created_by__user', 'postmedia_set', 'likes')
+      serializer = PostSerializer(query, many = True, context={'profile': user})
       return Response(serializer.data)
 

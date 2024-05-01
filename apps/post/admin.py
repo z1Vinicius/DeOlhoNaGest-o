@@ -7,6 +7,7 @@ from .models import (
 	
 @admin.decorators.register(Post)
 class PostAdmin(admin.ModelAdmin):
+  search_fields = ["id"]   
   ...
   
 @admin.decorators.register(PostMedia)

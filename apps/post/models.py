@@ -7,6 +7,7 @@ from datetime import datetime
 from django.core.files import File
 
 from os import path
+from random import randint
 from apps.authentication.models import Profile
 MEDIA_ROOT_POST = 'post/media'
 
@@ -26,7 +27,7 @@ class PostFeedIndex(models.Model):
 
     @classmethod
     def createIndex(cls):
-        indexName = 'index_'+datetime.now().strftime('%d%m%y%H:%M:%S%Z')
+        indexName = 'index_' + datetime.now().strftime('%d%m%y%H%M%S%f')
         cls.objects.create(index_name = indexName)
         return indexName
     
@@ -37,7 +38,8 @@ class PostFeedIndex(models.Model):
     @classmethod
     def checkMaxIndex(cls, maxIndexCount = 20):
         lastIndex = cls.objects.all().order_by('-id').first()
-        if not (lastIndex) or (lastIndex.index_count >= maxIndexCount):
+        postsIndex = Post.objects.filter(feed_category = lastIndex.index_name)
+        if not (lastIndex) or (len(postsIndex) >= maxIndexCount):
             return cls.createIndex()
         return lastIndex.index_name
 
@@ -49,7 +51,7 @@ class Post(models.Model):
     post_text = models.CharField(max_length= 500, blank= False, null= False, verbose_name="Texto", db_column="POST")
     likes = models.ManyToManyField(Profile,  verbose_name="Curtidas", db_column="LIKE", related_name="post_likes")
     like_count = models.IntegerField(default=0, null= True, blank= True, verbose_name="Quantidade de curtidas", db_column="QT_LIKE")
-    feed_category = models.CharField(max_length=20, blank= True, null= True)
+    feed_category = models.CharField(max_length=50, blank= True, null= True)
     status = models.CharField(
         max_length= 15,
         choices = POST_STATUS,
@@ -61,7 +63,7 @@ class Post(models.Model):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return self.post_text
+        return self.feed_category
     
     @classmethod
     def getAllPosts(cls, createdBy):
