@@ -10,7 +10,6 @@ def run():
   randomMedia = listdir('media\post_media_faker')
   # mediaPath =  + r"\\media\\post_media_faker\\"
   all_profiles = Profile.objects.all()
-  print(all_profiles)
   for post in range(1012):
     random = randint(0, len(all_profiles) - 1)
     PostFaker = Post.objects.create(

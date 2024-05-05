@@ -5,7 +5,7 @@ from django.db import models
 from uuid import uuid4
 from datetime import datetime
 from django.core.files import File
-
+from django.utils.timezone import now
 from os import path
 from random import randint
 from apps.authentication.models import Profile
@@ -24,6 +24,7 @@ class PostFeedIndex(models.Model):
     index_name = models.CharField(max_length= 20, unique= True)
     index_count = models.IntegerField(default= 0)
     created_at = models.DateTimeField(auto_now_add= True, verbose_name="Criado em", db_column="CREATED_AT")
+    updated_at = models.DateTimeField(auto_now_add= True, verbose_name="Atualizado em", db_column="UPDATED_AT", blank= True, null= True)
 
     @classmethod
     def createIndex(cls):
@@ -36,8 +37,15 @@ class PostFeedIndex(models.Model):
         return cls.objects.all().order_by('-id').first().index_name
     
     @classmethod
+    def getRecentPostFeed(cls):
+        return cls.objects.all()
+    
+    @classmethod
     def checkMaxIndex(cls, maxIndexCount = 20):
         lastIndex = cls.objects.all().order_by('-id').first()
+        if not(lastIndex):
+            lastIndex = cls.createIndex()
+            lastIndex = cls.objects.all().order_by('-id').first()
         postsIndex = Post.objects.filter(feed_category = lastIndex.index_name)
         if not (lastIndex) or (len(postsIndex) >= maxIndexCount):
             return cls.createIndex()

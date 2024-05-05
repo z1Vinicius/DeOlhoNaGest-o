@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'axes',
     'polymorphic',
     'dj_rest_auth',
+    'django_extensions',
     # Custom Apps
     'apps.authentication',
     'apps.post',

@@ -1,9 +1,3 @@
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import Permission, Group, User
-from django.views.decorators.csrf import csrf_protect
-from django.http import JsonResponse
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView, status
 from axes.utils import reset
@@ -12,8 +6,9 @@ import datetime
 from rest_framework.permissions import IsAuthenticated
 
 from apps.authentication.models import Profile
-from .serializers import PostSerializer
-from .models import Post
+from .serializers import PostSerializer, UpdateFeedCategorySerializer, FeedCategorySerializer
+from .models import Post, PostFeedIndex
+from typing	 import TypeAlias
 
 class UserPosts(APIView):
     [IsAuthenticated]
@@ -33,3 +28,25 @@ class RecentFeed(APIView):
       serializer = PostSerializer(query, many = True, context={'profile': user})
       return Response(serializer.data)
 
+class UpdateFeed(APIView):
+  [IsAuthenticated]
+  def get(self, request, *args, **kwargs):
+    serializer = UpdateFeedCategorySerializer(data = request.data)
+    
+    def checkUpdates(objectList, feedCategory, lastUpdate):
+      for obj in objectList:
+        if obj['feed_category'] == feedCategory:
+          print(obj['last_update'].replace("T", " "), lastUpdate, obj['last_update'].replace("T", " ") == lastUpdate, str(lastUpdate))
+          if obj['last_update'].replace("T", " ") == str(lastUpdate):
+            return True
+          return False
+      return False
+    
+    if serializer.is_valid():
+      data = serializer.data
+      feed = PostFeedIndex.getRecentPostFeed().order_by('-id')
+      
+      for feedIndex in feed[:10]:
+        print('valor', checkUpdates(data['categories'], feedIndex.index_name, feedIndex.updated_at))
+      return Response("Evento recebido com sucesso!", status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

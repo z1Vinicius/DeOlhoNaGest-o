@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Post, PostMedia
+from typing import List
 
 class PostMediaSerializer(serializers.ModelSerializer):
   class Meta:
@@ -32,3 +33,10 @@ class PostSerializer(serializers.ModelSerializer):
         'profileImage': instance.created_by.avatar.url
       }
     }
+    
+class FeedCategorySerializer(serializers.Serializer):
+  feed_category = serializers.CharField(max_length = 50)
+  last_update = serializers.DateTimeField()
+    
+class UpdateFeedCategorySerializer(serializers.Serializer):
+  categories = FeedCategorySerializer(many = True)
