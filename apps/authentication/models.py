@@ -6,6 +6,7 @@ from django.db import models
 MEDIA_ROOT_USER = 'authentication/profile_images'
 
 class Profile(models.Model):
+    id = models.UUIDField(primary_key= True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     avatar = models.ImageField(upload_to = MEDIA_ROOT_USER, default=r"profile_images\user_placeholder.png")
     phone_number = models.CharField(blank = True, default='', max_length= 20)
