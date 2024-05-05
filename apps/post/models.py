@@ -34,7 +34,7 @@ class PostFeedIndex(models.Model):
     
     @classmethod
     def getRecentCategory(cls):
-        return cls.objects.all().order_by('-id').first().index_name
+        return cls.objects.all().order_by('-id').first()
     
     @classmethod
     def getRecentPostFeed(cls):

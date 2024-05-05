@@ -22,6 +22,7 @@ class PostSerializer(serializers.ModelSerializer):
         'createdAt': instance.created_at,
         'updatedAt': instance.updated_at,
         'likes': len(instance.likes.all()),
+        'feed_category': instance.feed_category,
         'media': PostMediaSerializer(instance.postmedia_set.all(), many = True).data,
         'hasLike':  self.context.get("profile") in instance.likes.all(),
         'description': instance.post_text    

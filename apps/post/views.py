@@ -4,6 +4,7 @@ from axes.utils import reset
 from django.shortcuts import render
 import datetime
 from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import redirect
 
 from apps.authentication.models import Profile
 from .serializers import PostSerializer, UpdateFeedCategorySerializer, FeedCategorySerializer
@@ -24,9 +25,11 @@ class RecentFeed(APIView):
     [IsAuthenticated]
     def get(self, request, *args, **kwargs):
       user = Profile.getByRequest(request)
-      query = Post.getRecentPosts().prefetch_related('created_by', 'created_by__user', 'postmedia_set', 'likes')
+      category = PostFeedIndex.getRecentCategory()
+      query = Post.getRecentPosts(category.index_name).prefetch_related('created_by', 'created_by__user', 'postmedia_set', 'likes')
       serializer = PostSerializer(query, many = True, context={'profile': user})
-      return Response(serializer.data)
+      return Response({"data" : serializer.data, "feed_category": category.index_name, "updated_at": category.updated_at })
+
 
 class UpdateFeed(APIView):
   [IsAuthenticated]
@@ -46,11 +49,13 @@ class UpdateFeed(APIView):
       feed = PostFeedIndex.getRecentPostFeed().order_by('-id')
       
       for feedIndex in feed[:10]:
-        updates = checkUpdates(data['categories'], feedIndex.index_name, feedIndex.updated_at)
+        indexName = feedIndex.index_name
+  
+        updates = checkUpdates(data['categories'],indexName , feedIndex.updated_at)
         if (updates):
           user = Profile.getByRequest(request)
-          query = Post.getRecentPosts(feedIndex.index_name).prefetch_related('created_by', 'created_by__user', 'postmedia_set', 'likes')
+          query = Post.getRecentPosts(indexName).prefetch_related('created_by', 'created_by__user', 'postmedia_set', 'likes')
           serializer = PostSerializer(query, many = True, context={'profile': user})
-          return Response(serializer.data)
+          return Response({"data" : serializer.data, "feed_category": indexName, "updated_at": feedIndex.updated_at })
       return Response("Tudo em dia!", status=status.HTTP_204_NO_CONTENT)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return redirect("get_feed_posts")
