@@ -36,17 +36,21 @@ class UpdateFeed(APIView):
     def checkUpdates(objectList, feedCategory, lastUpdate):
       for obj in objectList:
         if obj['feed_category'] == feedCategory:
-          print(obj['last_update'].replace("T", " "), lastUpdate, obj['last_update'].replace("T", " ") == lastUpdate, str(lastUpdate))
           if obj['last_update'].replace("T", " ") == str(lastUpdate):
-            return True
-          return False
-      return False
+            return False
+          return True
+      return True
     
     if serializer.is_valid():
       data = serializer.data
       feed = PostFeedIndex.getRecentPostFeed().order_by('-id')
       
       for feedIndex in feed[:10]:
-        print('valor', checkUpdates(data['categories'], feedIndex.index_name, feedIndex.updated_at))
-      return Response("Evento recebido com sucesso!", status=status.HTTP_201_CREATED)
+        updates = checkUpdates(data['categories'], feedIndex.index_name, feedIndex.updated_at)
+        if (updates):
+          user = Profile.getByRequest(request)
+          query = Post.getRecentPosts(feedIndex.index_name).prefetch_related('created_by', 'created_by__user', 'postmedia_set', 'likes')
+          serializer = PostSerializer(query, many = True, context={'profile': user})
+          return Response(serializer.data)
+      return Response("Tudo em dia!", status=status.HTTP_204_NO_CONTENT)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

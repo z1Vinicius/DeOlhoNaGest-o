@@ -78,10 +78,10 @@ class Post(models.Model):
         return cls.objects.filter(created_by = createdBy, status = 'public')
     
     @classmethod
-    def getRecentPosts(cls):
-        recentCategory = PostFeedIndex.getRecentCategory()
-        return cls.objects.filter(feed_category = recentCategory, status = 'public')
-
+    def getRecentPosts(cls, category = ""):
+        if not(category):
+            category = PostFeedIndex.getRecentCategory()
+        return cls.objects.filter(feed_category = category, status = 'public')
 
 class PostMedia(models.Model):
     post = models.ForeignKey(Post, on_delete= models.CASCADE, verbose_name="Postagem", db_column="CD_POST")
