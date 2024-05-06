@@ -2,10 +2,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView, status
 from axes.utils import reset
 from django.shortcuts import render
-import datetime
+from datetime import datetime
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import redirect
-
 from apps.authentication.models import Profile
 from .serializers import PostSerializer, UpdateFeedCategorySerializer, FeedCategorySerializer
 from .models import Post, PostFeedIndex
@@ -33,18 +32,17 @@ class RecentFeed(APIView):
 
 class UpdateFeed(APIView):
   [IsAuthenticated]
-  def get(self, request, *args, **kwargs):
+  def post(self, request, *args, **kwargs):
     serializer = UpdateFeedCategorySerializer(data = request.data)
-    
     def checkUpdates(objectList, feedCategory, lastUpdate):
       for obj in objectList:
         if obj['feed_category'] == feedCategory:
-          if obj['last_update'].replace("T", " ") == str(lastUpdate):
+          if datetime.fromisoformat(obj['last_update']).strftime("%m/%d/%Y %H:%M:%S") == lastUpdate.strftime("%m/%d/%Y %H:%M:%S"):
             return False
           return True
       return True
-    
     if serializer.is_valid():
+      print('valido')
       data = serializer.data
       feed = PostFeedIndex.getRecentPostFeed().order_by('-id')
       
@@ -58,4 +56,5 @@ class UpdateFeed(APIView):
           serializer = PostSerializer(query, many = True, context={'profile': user})
           return Response({"data" : serializer.data, "feed_category": indexName, "updated_at": feedIndex.updated_at })
       return Response("Tudo em dia!", status=status.HTTP_204_NO_CONTENT)
+    print(serializer.error_messages)
     return redirect("get_feed_posts")
