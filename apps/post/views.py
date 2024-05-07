@@ -6,9 +6,11 @@ from datetime import datetime
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import redirect
 from apps.authentication.models import Profile
-from .serializers import PostSerializer, UpdateFeedCategorySerializer, FeedCategorySerializer
+from .serializers import PostSerializer, UpdateFeedCategorySerializer, PostCreateSerializer
 from .models import Post, PostFeedIndex
 from typing	 import TypeAlias
+from rest_framework.response import Response
+import base64
 
 class UserPosts(APIView):
     [IsAuthenticated]
@@ -56,5 +58,12 @@ class UpdateFeed(APIView):
           serializer = PostSerializer(query, many = True, context={'profile': user})
           return Response({"data" : serializer.data, "feed_category": indexName, "updated_at": feedIndex.updated_at })
       return Response("Tudo em dia!", status=status.HTTP_204_NO_CONTENT)
-    print(serializer.error_messages)
     return redirect("get_feed_posts")
+  
+class PostCreateAPIView(APIView):
+  def post(self, request, *args, **kwargs):
+      serializer = PostCreateSerializer(data=request.data, context={'request': request})
+      if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+      return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

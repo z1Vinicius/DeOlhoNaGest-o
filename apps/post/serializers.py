@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from .models import Post, PostMedia
 from typing import List
+from apps.authentication.models import Profile
+from django.core.files.base import ContentFile
+import base64
 
 class PostMediaSerializer(serializers.ModelSerializer):
   class Meta:
@@ -41,3 +44,22 @@ class FeedCategorySerializer(serializers.Serializer):
     
 class UpdateFeedCategorySerializer(serializers.Serializer):
   categories = FeedCategorySerializer(many = True)
+  
+
+class PostCreateSerializer(serializers.ModelSerializer):
+  media = serializers.ListField(child=serializers.CharField(), write_only=True, required=False)
+
+  class Meta:
+    model = Post
+    fields = ['post_text', 'media']
+
+  def create(self, validated_data):
+    mediaData = validated_data.pop('media', [])
+    createdBy = Profile.getByRequest(self.context['request'])
+    post = Post.objects.create(created_by=createdBy, **validated_data)
+    
+    for image_data in mediaData:
+      imageBinary = base64.b64decode(image_data)
+      PostMedia.objects.create(image=ContentFile(imageBinary, name='image.jpg'), post=post)
+
+    return post
