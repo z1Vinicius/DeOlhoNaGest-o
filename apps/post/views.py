@@ -1,16 +1,15 @@
-from rest_framework.response import Response
-from rest_framework.views import APIView, status
-from axes.utils import reset
-from django.shortcuts import render
 from datetime import datetime
+from typing import TypeAlias
+
+from axes.utils import reset
+from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import redirect
+from rest_framework.response import Response, status
+from rest_framework.views import APIView
+
 from apps.authentication.models import Profile
-from .serializers import PostSerializer, UpdateFeedCategorySerializer, PostCreateSerializer
 from .models import Post, PostFeedIndex
-from typing	 import TypeAlias
-from rest_framework.response import Response
-import base64
+from .serializers import PostSerializer, UpdateFeedCategorySerializer, PostCreateSerializer
 
 class UserPosts(APIView):
     [IsAuthenticated]
@@ -62,8 +61,35 @@ class UpdateFeed(APIView):
   
 class PostCreateAPIView(APIView):
   def post(self, request, *args, **kwargs):
-      serializer = PostCreateSerializer(data=request.data, context={'request': request})
-      if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-      return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    serializer = PostCreateSerializer(data=request.data, context={'request': request})
+    if serializer.is_valid():
+      serializer.save()
+      return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class LikeUnlikePostAPIView(APIView):
+  def post(self, request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    user = Profile.getByRequest(request)
+    
+    if post.likes.filter(pk=user.pk).exists():
+      return Response({"detail": "Você já curtiu este post."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    post.likes.add(user)
+    post.like_count += 1
+    post.save()
+      
+    return Response({"detail": "Você curtiu este post."}, status=status.HTTP_200_OK)
+
+  def delete(self, request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    user = Profile.getByRequest(request)
+    
+    if not post.likes.filter(pk=user.pk).exists():
+        return Response({"detail": "Você ainda não curtiu este post."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    post.likes.remove(user)
+    post.like_count -= 1
+    post.save()
+    
+    return Response({"detail": "Você removeu o like deste post."}, status=status.HTTP_200_OK)
