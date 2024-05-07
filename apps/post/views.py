@@ -4,12 +4,12 @@ from typing import TypeAlias
 from axes.utils import reset
 from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response, status
-from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.views import APIView, status
 
 from apps.authentication.models import Profile
 from .models import Post, PostFeedIndex
-from .serializers import PostSerializer, UpdateFeedCategorySerializer, PostCreateSerializer
+from .serializers import PostSerializer, UpdateFeedCategorySerializer, PostCreateSerializer, PostStatusUpdateSerializer
 
 class UserPosts(APIView):
     [IsAuthenticated]
@@ -93,3 +93,14 @@ class LikeUnlikePostAPIView(APIView):
     post.save()
     
     return Response({"detail": "Você removeu o like deste post."}, status=status.HTTP_200_OK)
+  
+class UpdatePostStatusAPIView(APIView):
+  def put(self, request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    user = Profile.getByRequest(request)
+    if post.created_by.id == user.id:
+      serializer = PostStatusUpdateSerializer(instance=post)
+      serializer.update(post, {})
+      return Response({'detail': 'Status do post atualizado para "private".'}, status=status.HTTP_200_OK)
+    else:
+      return Response({'detail': 'O campo created_at na requisição não corresponde ao created_at do post.'}, status=status.HTTP_400_BAD_REQUEST)

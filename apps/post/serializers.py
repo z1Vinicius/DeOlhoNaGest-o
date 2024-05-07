@@ -63,3 +63,9 @@ class PostCreateSerializer(serializers.ModelSerializer):
       PostMedia.objects.create(image=ContentFile(imageBinary, name='image.jpg'), post=post)
 
     return post
+  
+class PostStatusUpdateSerializer(serializers.Serializer):
+    def update(self, instance, validated_data):
+      instance.status = 'private'
+      instance.save()
+      return instance
