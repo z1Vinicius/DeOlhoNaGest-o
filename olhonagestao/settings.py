@@ -38,17 +38,19 @@ INSTALLED_APPS = [
     'django_dump_load_utf8',
     'rolepermissions',
     'rest_framework_simplejwt',
+    'drf_standardized_errors',
     'django_apscheduler',
     'axes',
+    'image_optimizer',
     'polymorphic',
     'dj_rest_auth',
     'django_extensions',
     # Custom Apps
     'apps.authentication',
     'apps.post',
-    'drf_standardized_errors',
 ]
 
+OPTIMIZED_IMAGE_METHOD = 'pillow'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

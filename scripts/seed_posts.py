@@ -17,4 +17,4 @@ def run():
       post_text = faker.text()
     )
     for random_images in range(1, randint(1, 4)):
-      PostMedia.createPostMedia(Post=PostFaker, Path= r"/media/post_media_faker/" + randomMedia[randint(0, len(randomMedia) - 1)])
+      PostMedia.createPostMedia(Post=PostFaker, Path= r"/media/o/" + randomMedia[randint(0, len(randomMedia) - 1)])

@@ -1,13 +1,8 @@
-from django.db.models.signals import post_save
-from django.contrib.auth.models import User
-from django.dispatch import receiver
+from image_optimizer.fields import OptimizedImageField
 from django.db import models
 from uuid import uuid4
 from datetime import datetime
-from django.core.files import File
-from django.utils.timezone import now
 from os import path
-from random import randint
 from apps.authentication.models import Profile
 MEDIA_ROOT_POST = 'post/media'
 
@@ -67,7 +62,9 @@ class Post(models.Model):
     )
     
     def save(self, *args, **kwargs):
-        self.feed_category = PostFeedIndex.checkMaxIndex()
+        postIndex = PostFeedIndex.checkMaxIndex()
+        self.feed_category = postIndex
+        PostFeedIndex.objects.filter(index_name = postIndex).update(updated_at = datetime.now())
         super().save(*args, **kwargs)
     
     def __str__(self):
@@ -85,8 +82,14 @@ class Post(models.Model):
 
 class PostMedia(models.Model):
     post = models.ForeignKey(Post, on_delete= models.CASCADE, verbose_name="Postagem", db_column="CD_POST")
-    image = models.ImageField(upload_to= MEDIA_ROOT_POST, verbose_name="Imagem",db_column="PATH")
+    # image = models.ImageField(upload_to= MEDIA_ROOT_POST, verbose_name="Imagem",db_column="PATH")
     
+    image = OptimizedImageField(
+        upload_to=MEDIA_ROOT_POST,
+        optimized_image_output_size=(400, 300),
+        optimized_image_resize_method="cover",
+        verbose_name="Imagem",db_column="PATH"#  "crop", "cover", "contain", "width", "height", "thumbnail" or None
+    )
     @classmethod
     def createPostMedia(cls, Post, Path):
         Path = Path.replace("/", "\\")

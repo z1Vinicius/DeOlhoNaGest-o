@@ -61,6 +61,7 @@ class UpdateFeed(APIView):
   
 class PostCreateAPIView(APIView):
   def post(self, request, *args, **kwargs):
+    print(request.data)
     serializer = PostCreateSerializer(data=request.data, context={'request': request})
     if serializer.is_valid():
       serializer.save()

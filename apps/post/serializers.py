@@ -51,7 +51,7 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
   class Meta:
     model = Post
-    fields = ['post_text', 'media']
+    fields = ['id', 'post_text', 'media']
 
   def create(self, validated_data):
     mediaData = validated_data.pop('media', [])
