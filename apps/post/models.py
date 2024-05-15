@@ -71,6 +71,10 @@ class Post(models.Model):
         return self.feed_category
     
     @classmethod
+    def getPost(cls, id):
+        return cls.objects.get(id = id)
+    
+    @classmethod
     def getAllPosts(cls, createdBy):
         return cls.objects.filter(created_by = createdBy, status = 'public')
     

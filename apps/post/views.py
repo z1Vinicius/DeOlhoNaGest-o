@@ -61,39 +61,38 @@ class UpdateFeed(APIView):
   
 class PostCreateAPIView(APIView):
   def post(self, request, *args, **kwargs):
-    print(request.data)
     serializer = PostCreateSerializer(data=request.data, context={'request': request})
     if serializer.is_valid():
       serializer.save()
-      return Response(serializer.data, status=status.HTTP_201_CREATED)
+      return Response(PostSerializer(Post.getPost(serializer.data['id']), context={'profile': Profile.getByRequest(request)}).data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class LikeUnlikePostAPIView(APIView):
   def post(self, request, post_id):
-    post = get_object_or_404(Post, id=post_id)
+    post = get_object_or_404(Post, id=post_id.replace("-", ""))
     user = Profile.getByRequest(request)
     
     if post.likes.filter(pk=user.pk).exists():
-      return Response({"detail": "Você já curtiu este post."}, status=status.HTTP_400_BAD_REQUEST)
+      return Response(PostSerializer(post, context={'profile': Profile.getByRequest(request)}).data, status=status.HTTP_400_BAD_REQUEST)
     
     post.likes.add(user)
     post.like_count += 1
     post.save()
       
-    return Response({"detail": "Você curtiu este post."}, status=status.HTTP_200_OK)
+    return Response(PostSerializer(post, context={'profile': Profile.getByRequest(request)}).data, status=status.HTTP_200_OK)
 
   def delete(self, request, post_id):
     post = get_object_or_404(Post, id=post_id)
     user = Profile.getByRequest(request)
     
     if not post.likes.filter(pk=user.pk).exists():
-        return Response({"detail": "Você ainda não curtiu este post."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(PostSerializer(post, context={'profile': Profile.getByRequest(request)}).data, status=status.HTTP_400_BAD_REQUEST)
     
     post.likes.remove(user)
     post.like_count -= 1
     post.save()
     
-    return Response({"detail": "Você removeu o like deste post."}, status=status.HTTP_200_OK)
+    return Response(PostSerializer(post, context={'profile': Profile.getByRequest(request)}).data, status=status.HTTP_200_OK)
   
 class UpdatePostStatusAPIView(APIView):
   def put(self, request, post_id):
@@ -105,3 +104,4 @@ class UpdatePostStatusAPIView(APIView):
       return Response({'detail': 'Status do post atualizado para "private".'}, status=status.HTTP_200_OK)
     else:
       return Response({'detail': 'O campo created_at na requisição não corresponde ao created_at do post.'}, status=status.HTTP_400_BAD_REQUEST)
+    
