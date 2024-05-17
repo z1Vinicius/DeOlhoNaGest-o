@@ -2,7 +2,7 @@ from django.db.models.signals import post_save
 from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db import models
-
+from uuid import uuid4
 MEDIA_ROOT_USER = 'authentication/profile_images'
 
 class Profile(models.Model):
@@ -19,7 +19,7 @@ class Profile(models.Model):
         userPlaceholder = r'\media\profile_images\user_placeholder.png'
         avatarUrl = cls.objects.filter(user__username = username).first()
         if avatarUrl is None: return userPlaceholder
-        return avatarUrl.avatar.url
+        return avatarUrl.id, avatarUrl.avatar.url
     
     @classmethod
     def getByRequest(cls, request):
@@ -28,5 +28,5 @@ class Profile(models.Model):
 @receiver(post_save, sender= User)
 def createProfile(sender, instance, created, **kwargs):
     if(created):
-        userProfile = Profile(user = instance)
+        userProfile = Profile(id = uuid4(), user = instance)
         userProfile.save()

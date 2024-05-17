@@ -11,11 +11,21 @@ from django.shortcuts import render
 import datetime
 from apps.authentication.models import Profile
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
+
+from rest_framework import generics
+from .serializers import UserRegistrationSerializer
+
+class UserRegisterView(generics.CreateAPIView):
+    throttle_scope = 'profile_register'
+    permission_classes = [AllowAny]
+    serializer_class = UserRegistrationSerializer
+
 
 class ProfileData(APIView):
     [IsAuthenticated]
+    throttle_scope = 'profile_data'
     def get(self, request, *args, **kwargs):    
-        
         def userPermissions() -> list:
             if(request.user.is_superuser):
                 permissionsQuery = Permission.objects.all()
@@ -26,14 +36,16 @@ class ProfileData(APIView):
         
         isAuthenticated = request.user.is_authenticated
         if(isAuthenticated):
+            profileId, profileImage = Profile.getUserProfile(request.user.username)
             return JsonResponse(
                 {
+                    "id": profileId,
                     "email": request.user.email,
                     'username': request.user.username,
                     'firstName': request.user.first_name,
                     'lastName': request.user.last_name,
                     'isAuthenticated': True,
-                    "profileImage": Profile.getUserProfile(request.user.username),
+                    "profileImage": profileImage,
                     "verified": True,
                     "assignments":  {
                         "permissions": userPermissions(),

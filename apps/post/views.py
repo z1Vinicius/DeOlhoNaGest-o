@@ -13,6 +13,7 @@ from .serializers import PostSerializer, UpdateFeedCategorySerializer, PostCreat
 
 class UserPosts(APIView):
     [IsAuthenticated]
+    throttle_scope = 'feed_update'
     def get(self, request, *args, **kwargs):
       user = Profile.getByRequest(request)
       if not(user):
@@ -23,6 +24,7 @@ class UserPosts(APIView):
     
 class RecentFeed(APIView):
     [IsAuthenticated]
+    throttle_scope = 'feed_update'
     def get(self, request, *args, **kwargs):
       user = Profile.getByRequest(request)
       category = PostFeedIndex.getRecentCategory()
@@ -33,6 +35,7 @@ class RecentFeed(APIView):
 
 class UpdateFeed(APIView):
   [IsAuthenticated]
+  throttle_scope = 'feed_update'
   def post(self, request, *args, **kwargs):
     serializer = UpdateFeedCategorySerializer(data = request.data)
     def checkUpdates(objectList, feedCategory, lastUpdate):
@@ -43,7 +46,6 @@ class UpdateFeed(APIView):
           return True
       return True
     if serializer.is_valid():
-      print('valido')
       data = serializer.data
       feed = PostFeedIndex.getRecentPostFeed().order_by('-id')
       
@@ -60,6 +62,7 @@ class UpdateFeed(APIView):
     return redirect("get_feed_posts")
   
 class PostCreateAPIView(APIView):
+  throttle_scope = 'post_create'
   def post(self, request, *args, **kwargs):
     serializer = PostCreateSerializer(data=request.data, context={'request': request})
     if serializer.is_valid():
@@ -68,6 +71,7 @@ class PostCreateAPIView(APIView):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class LikeUnlikePostAPIView(APIView):
+  throttle_scope = 'post_like'
   def post(self, request, post_id):
     post = get_object_or_404(Post, id=post_id.replace("-", ""))
     user = Profile.getByRequest(request)
@@ -95,6 +99,7 @@ class LikeUnlikePostAPIView(APIView):
     return Response(PostSerializer(post, context={'profile': Profile.getByRequest(request)}).data, status=status.HTTP_200_OK)
   
 class UpdatePostStatusAPIView(APIView):
+  throttle_scope = 'post_update'
   def put(self, request, post_id):
     post = get_object_or_404(Post, id=post_id)
     user = Profile.getByRequest(request)
